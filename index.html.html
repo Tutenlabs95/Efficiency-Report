@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tutenlabs - Efficiency Calculator</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      overflow-x: hidden;
+    }
+    .container {
+      width: 98vw;
+      max-width: none;
+      background: #ffffff;
+      padding: 30px 40px 40px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+      overflow-x: auto;
+      max-height: 95vh;
+      overflow-y: auto;
+    }
+    h2 {
+      text-align: center;
+      color: #0059b3;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+    input, select {
+      width: 100%;
+      min-width: 200px;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    button {
+      flex: 1 1 160px;
+      min-width: 140px;
+      padding: 12px 20px;
+      background-color: #0059b3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #004a99;
+    }
+    table {
+      margin: 30px auto 0 auto;
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 900px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background-color: #e6f0ff;
+    }
+    .delete-btn {
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .delete-btn:hover {
+      background-color: #cc0000;
+    }
+    #analysisOutput > div {
+      background:#fff7f7;
+      padding:15px;
+      margin-top:15px;
+      border-left:4px solid #ff4d4d;
+      font-weight: 600;
+      font-size: 14px;
+      max-width: 95%;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Tutenlabs | Worker Efficiency Tracker</h2>
+
+    <label for="name">Employee Name</label>
+    <input type="text" id="name" placeholder="Enter employee name" />
+
+    <label for="period">Tracking Period</label>
+    <select id="period">
+      <option value="Daily">Daily</option>
+      <option value="Weekly">Weekly</option>
+      <option value="Monthly">Monthly</option>
+    </select>
+
+    <label for="calls">Total Calls</label>
+    <input type="number" id="calls" placeholder="Enter total calls" />
+
+    <label for="talkTime">Total Talk Time (minutes)</label>
+    <input type="number" id="talkTime" placeholder="Enter total talk time in minutes" />
+
+    <label for="callLength">Call Documentation Period (minutes)</label>
+    <input type="number" id="callLength" placeholder="Default is 1" value="1" step="0.1" />
+
+    <label for="tickets">Tickets Handled (Emails + Alarms)</label>
+    <input type="number" id="tickets" placeholder="Enter number of tickets handled" />
+
+    <label for="avgTime">Avg. Time per Ticket (minutes)</label>
+    <input type="number" id="avgTime" step="0.01" placeholder="Default is 8" value="8" />
+
+    <label for="productivityTime">Productivity Time (Meetings / Training / Projects) (minutes)</label>
+    <input type="number" id="productivityTime" placeholder="Enter productivity time in minutes" value="0" />
+
+    <label for="billable">Billable Time (hours)</label>
+    <input type="number" id="billable" step="0.1" placeholder="Enter billable time in hours" />
+
+    <div class="button-group">
+      <button onclick="calculateEfficiency()">Add Entry</button>
+      <button onclick="exportToExcel()">Export All to Excel</button>
+      <button onclick="shareViaEmail()">Share via Email</button>
+      <button onclick="clearAllEntries()">Clear Page</button>
+    </div>
+
+    <table id="resultsTable" style="display:none">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Period</th>
+          <th>Total Calls</th>
+          <th>Talk Time (min)</th>
+          <th>Call Documentation Period</th>
+          <th>Tickets Handled</th>
+          <th>Avg. Time (Ticket)</th>
+          <th>Productivity Time (min)</th>
+          <th>Total Ticket Time (min)</th>
+          <th>Billable Hours</th>
+          <th>Estimated Hours</th>
+          <th>Efficiency %</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div id="analysisOutput"></div>
+  </div>
+
+  <script>
+    let results = [];
+
+    function calculateEfficiency() {
+      const name = document.getElementById('name').value.trim() || 'Unnamed';
+      const period = document.getElementById('period').value;
+      const calls = parseInt(document.getElementById('calls').value) || 0;
+      const talkTime = parseInt(document.getElementById('talkTime').value) || 0;
+      const callLength = parseFloat(document.getElementById('callLength').value) || 1;
+      const tickets = parseInt(document.getElementById('tickets').value) || 0;
+      const avgTime = parseFloat(document.getElementById('avgTime').value) || 8;
+      const productivityTime = parseInt(document.getElementById('productivityTime').value) || 0;
+      const billableHours = parseFloat(document.getElementById('billable').value) || 0;
+      const billableMinutes = billableHours * 60;
+
+      const totalTicketTime = tickets * avgTime;
+      const totalCallTime = calls * callLength;
+      const totalTime = totalCallTime + talkTime + productivityTime + totalTicketTime;
+      const estHours = totalTime / 60;
+      const efficiency = billableMinutes > 0 ? (totalTime / billableMinutes) * 100 : 0;
+
+      const requiredProductiveTime = billableMinutes * 0.75;
+      const gap = requiredProductiveTime - totalTime;
+      const suggestedTickets = Math.ceil(gap / avgTime);
+
+      const rowData = {
+        Name: name,
+        Period: period,
+        Total_Calls: calls,
+        Talk_Time_Min: talkTime,
+        Call_Length: callLength,
+        Tickets_Handled: tickets,
+        Avg_Time_Min: avgTime,
+        Productivity_Time: productivityTime,
+        Total_Ticket_Time_Min: totalTicketTime.toFixed(2),
+        Billable_Minutes: billableHours.toFixed(2),
+        Estimated_Hours: estHours.toFixed(2),
+        Efficiency_Percent: efficiency.toFixed(2)
+      };
+
+      results.push(rowData);
+      appendToTable(rowData);
+      displayAnalysis(efficiency, gap, suggestedTickets, name);
+
+      document.getElementById('name').value = "";
+      document.getElementById('calls').value = "";
+      document.getElementById('callLength').value = "1";
+      document.getElementById('talkTime').value = "";
+      document.getElementById('productivityTime').value = "0";
+      document.getElementById('tickets').value = "";
+      document.getElementById('avgTime').value = "8";
+      document.getElementById('billable').value = "";
+    }
+
+    function appendToTable(data) {
+      const table = document.getElementById("resultsTable");
+      const tbody = table.querySelector("tbody");
+      const row = document.createElement("tr");
+
+      const keys = [
+        'Name', 'Period', 'Total_Calls', 'Talk_Time_Min', 'Call_Length',
+        'Tickets_Handled', 'Avg_Time_Min', 'Productivity_Time',
+        'Total_Ticket_Time_Min', 'Billable_Minutes',
+        'Estimated_Hours', 'Efficiency_Percent'
+      ];
+
+      keys.forEach(key => {
+        const td = document.createElement("td");
+        td.textContent = data[key];
+        td.contentEditable = true;
+        td.addEventListener("blur", () => updateDataFromTable());
+        row.appendChild(td);
+      });
+
+      const deleteTd = document.createElement("td");
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Delete";
+      deleteBtn.className = "delete-btn";
+      deleteBtn.onclick = function () {
+        const index = Array.from(tbody.children).indexOf(row);
+        if (index > -1) {
+          results.splice(index, 1);
+          tbody.removeChild(row);
+          updateDataFromTable();
+        }
+        if (results.length === 0) {
+          table.style.display = 'none';
+          clearAnalysisOutput();
+        }
+      };
+      deleteTd.appendChild(deleteBtn);
+      row.appendChild(deleteTd);
+
+      tbody.appendChild(row);
+      table.style.display = 'table';
+    }
+
+    function updateDataFromTable() {
+      const tbody = document.querySelector("#resultsTable tbody");
+      results = Array.from(tbody.rows).map(row => {
+        const cells = row.querySelectorAll("td");
+        const name = cells[0].textContent.trim() || 'Unnamed';
+        const period = cells[1].textContent.trim() || 'Daily';
+        const calls = Number(cells[2].textContent) || 0;
+        const talkTime = Number(cells[3].textContent) || 0;
+        const callLength = Number(cells[4].textContent) || 1;
+        const tickets = Number(cells[5].textContent) || 0;
+        const avgTime = Number(cells[6].textContent) || 8;
+        const productivityTime = Number(cells[7].textContent) || 0;
+        const billableHours = Number(cells[9].textContent) || 0;
+        const billableMinutes = billableHours * 60;
+
+        const totalTicketTime = tickets * avgTime;
+        const totalCallTime = calls * callLength;
+        const totalTime = totalCallTime + talkTime + productivityTime + totalTicketTime;
+        const estHours = totalTime / 60;
+        const efficiency = billableMinutes > 0 ? (totalTime / billableMinutes) * 100 : 0;
+
+        cells[8].textContent = totalTicketTime.toFixed(2);
+        cells[10].textContent = estHours.toFixed(2);
+        cells[11].textContent = efficiency.toFixed(2);
+
+        return {
+          Name: name,
+          Period: period,
+          Total_Calls: calls,
+          Talk_Time_Min: talkTime,
+          Call_Length: callLength,
+          Tickets_Handled: tickets,
+          Avg_Time_Min: avgTime,
+          Productivity_Time: productivityTime,
+          Total_Ticket_Time_Min: totalTicketTime.toFixed(2),
+          Billable_Minutes: billableHours.toFixed(2),
+          Estimated_Hours: estHours.toFixed(2),
+          Efficiency_Percent: efficiency.toFixed(2)
+        };
+      });
+
+      clearAnalysisOutput();
+      if (results.length > 0) {
+        const last = results[results.length - 1];
+        const requiredProductiveTime = Number(last.Billable_Minutes) * 60 * 0.75;
+        const gap = requiredProductiveTime - (
+          Number(last.Total_Calls) * Number(last.Call_Length) +
+          Number(last.Talk_Time_Min) +
+          Number(last.Productivity_Time) +
+          Number(last.Total_Ticket_Time_Min)
+        );
+        const suggestedTickets = Math.ceil(gap / Number(last.Avg_Time_Min));
+        displayAnalysis(parseFloat(last.Efficiency_Percent), gap, suggestedTickets, last.Name);
+      }
+    }
+
+    function exportToExcel() {
+      if(results.length === 0) return alert("No data to export.");
+      let csv = "Name,Period,Total Calls,Talk Time,Call Documentation Period,Tickets Handled,Avg Time,Productivity Time,Total Ticket Time,Billable Hours,Estimated Hours,Efficiency %\n";
+      results.forEach(row => {
+        csv += Object.values(row).join(",") + "\n";
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "Efficiency_Export.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function shareViaEmail() {
+      if(results.length === 0) return alert("No data to share.");
+      let csv = "Name,Period,Total Calls,Talk Time,Call Documentation Period,Tickets Handled,Avg Time,Productivity Time,Total Ticket Time,Billable Hours,Estimated Hours,Efficiency %\n";
+      results.forEach(row => {
+        let rowValues = Object.values(row).map(val => String(val).replace(/,/g, ';'));
+        csv += rowValues.join(",") + "\n";
+      });
+      const subject = encodeURIComponent("Tutenlabs Efficiency Data");
+      const body = encodeURIComponent(csv);
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    }
+
+    function clearAllEntries() {
+      results = [];
+      document.querySelector("tbody").innerHTML = "";
+      document.getElementById("resultsTable").style.display = "none";
+      clearAnalysisOutput();
+    }
+
+    function displayAnalysis(efficiency, gap, suggestedTickets, name) {
+      const container = document.getElementById("analysisOutput");
+      const message = document.createElement("div");
+      if (efficiency >= 75 || gap <= 0) {
+        message.textContent = `${name}: Efficiency is sufficient.`;
+      } else {
+        message.innerHTML = `
+          <strong>Recommendation for ${name}:</strong><br>
+          Current Efficiency: <strong>${efficiency.toFixed(2)}%</strong>.<br>
+          To reach 75%, they should handle <strong>${suggestedTickets}</strong> more tickets.
+        `;
+      }
+      container.appendChild(message);
+      container.scrollIntoView({behavior: 'smooth'});
+    }
+
+    function clearAnalysisOutput() {
+      document.getElementById("analysisOutput").innerHTML = "";
+    }
+  </script>
+</body>
+</html>
+
