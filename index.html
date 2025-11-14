@@ -1,420 +1,390 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Keedian Retail Team — Checklist Manager</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keedian - Efficiency Calculator</title>
   <style>
-    :root{
-      --bg:#f3f4f6; --card:#ffffff; --muted:#6b7280; --accent:#0b76ef;
-      --danger:#ef4444; --success:#10b981;
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      overflow-x: hidden;
     }
-    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-    body{margin:0;background:var(--bg);padding:28px;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;}
-    .wrap{width:100%;max-width:980px;}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-    h1{margin:0;font-size:20px;}
-    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 20px rgba(15,23,42,0.06);}
-    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-    select,input[type="text"]{padding:8px 10px;border-radius:8px;border:1px solid #e6e7ea;background:white;}
-    button{cursor:pointer;padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:white;font-weight:600;}
-    button.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,118,239,0.12);}
-    button.danger{background:var(--danger);}
-    button.small{padding:6px 8px;font-size:13px;}
-    .grid{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-top:12px;}
-    .list{padding:12px;border-radius:10px;background:#fbfdff;border:1px solid #eef2ff;min-height:320px;}
-    .item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;}
-    .item-row{display:flex;align-items:center;gap:12px;}
-    .item-text{font-size:15px;}
-    .item-text.done{text-decoration:line-through;color:var(--muted);}
-    .left-col .toolbar{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
-    .right-col .panel{padding:12px;background:#fff;border-radius:10px;border:1px solid #f0f3f7;}
-    .muted{color:var(--muted);font-size:13px;}
-    .footer{margin-top:14px;display:flex;gap:8px;justify-content:flex-end;}
-    .template-actions{display:flex;gap:8px;align-items:center;}
-    .danger-outline{background:transparent;border:1px solid rgba(239,68,68,0.12);color:var(--danger);}
-    .success{background:var(--success);border:0;color:white;}
-    textarea{width:100%;height:120px;padding:10px;border-radius:8px;border:1px solid #e6e7ea;}
-    /* mobile */
-    @media (max-width:900px){.grid{grid-template-columns:1fr;}.right-col{order:2}.left-col{order:1}}
+    .container {
+      width: 98vw;
+      max-width: none;
+      background: #ffffff;
+      padding: 30px 40px 40px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+      overflow-x: auto;
+      max-height: 95vh;
+      overflow-y: auto;
+    }
+    h2 {
+      text-align: center;
+      color: #0059b3;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+    input, select {
+      width: 100%;
+      min-width: 200px;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    button {
+      flex: 1 1 160px;
+      min-width: 140px;
+      padding: 12px 20px;
+      background-color: #0059b3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #004a99;
+    }
+    table {
+      margin: 30px auto 0 auto;
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 900px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background-color: #e6f0ff;
+    }
+    .delete-btn {
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .delete-btn:hover {
+      background-color: #cc0000;
+    }
+    #analysisOutput > div {
+      background:#fff7f7;
+      padding:15px;
+      margin-top:15px;
+      border-left:4px solid #ff4d4d;
+      font-weight: 600;
+      font-size: 14px;
+      max-width: 95%;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>Keedian Retail Team — Checklist Manager</h1>
-      <div class="muted">Persistent, reusable checklists for overnight ops</div>
-    </header>
+  <div class="container">
+    <h2>Tutenlabs | Worker Efficiency Tracker</h2>
 
-    <div class="card">
-      <div class="controls">
-        <div class="template-actions">
-          <label for="templateSelect" class="muted" style="margin-right:8px">Template</label>
-          <select id="templateSelect"></select>
-        </div>
+    <label for="name">Employee Name</label>
+    <input type="text" id="name" placeholder="Enter employee name" />
 
-        <input id="newTemplateName" type="text" placeholder="New template name (enter to create)" />
-        <button id="createTemplateBtn" class="ghost small">Create</button>
+    <label for="period">Tracking Period</label>
+    <select id="period">
+      <option value="Daily">Daily</option>
+      <option value="Weekly">Weekly</option>
+      <option value="Monthly">Monthly</option>
+    </select>
 
-        <button id="renameTemplateBtn" class="ghost small">Rename</button>
-        <button id="deleteTemplateBtn" class="danger-outline small">Delete Template</button>
+    <label for="calls">Total Calls</label>
+    <input type="number" id="calls" placeholder="Enter total calls" />
 
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-          <button id="exportBtn" class="ghost small">Export JSON</button>
-          <button id="importBtn" class="ghost small">Import JSON</button>
-          <input id="fileInput" type="file" accept="application/json" style="display:none"/>
-        </div>
-      </div>
+    <label for="talkTime">Total Talk Time (minutes)</label>
+    <input type="number" id="talkTime" placeholder="Enter total talk time in minutes" />
 
-      <div class="grid">
-        <div class="left-col">
-          <div class="list" id="itemsList">
-            <div class="toolbar">
-              <input id="addItemInput" type="text" placeholder="Add new item..." style="flex:1" />
-              <button id="addItemBtn">Add</button>
-              <button id="resetBtn" class="ghost small">Reset</button>
-              <button id="clearDoneBtn" class="ghost small">Clear Done</button>
-            </div>
+    <label for="callLength">Call Documentation Period (minutes)</label>
+    <input type="number" id="callLength" placeholder="Default is 1" value="1" step="0.1" />
 
-            <div id="itemsContainer" style="display:flex;flex-direction:column;gap:6px"></div>
-          </div>
+    <label for="tickets">Tickets Handled (Emails + Alarms)</label>
+    <input type="number" id="tickets" placeholder="Enter number of tickets handled" />
 
-          <div class="footer">
-            <div class="muted" style="margin-right:auto">Changes saved automatically to localStorage.</div>
-            <button id="printBtn" class="ghost small">Print</button>
-          </div>
-        </div>
+    <label for="avgTime">Avg. Time per Ticket (minutes)</label>
+    <input type="number" id="avgTime" step="0.01" placeholder="Default is 8" value="8" />
 
-        <div class="right-col">
-          <div class="panel">
-            <h3 style="margin-top:0">Template details</h3>
-            <div class="muted" style="margin-bottom:10px">Manage templates and backup/restore.</div>
+    <label for="productivityTime">Productivity Time (Meetings / Training / Projects) (minutes)</label>
+    <input type="number" id="productivityTime" placeholder="Enter productivity time in minutes" value="0" />
 
-            <strong>Default Overnight Items</strong>
-            <ul style="margin-top:8px">
-              <li>Vaccine Case Alarms Checked</li>
-              <li>JCP Alarms reviewed for winter issues</li>
-              <li>Follow-ups for clients</li>
-              <li>Overflow emails from end of shift</li>
-              <li>Review any project work for retail clients</li>
-            </ul>
+    <label for="billable">Billable Time (hours)</label>
+    <input type="number" id="billable" step="0.1" placeholder="Enter billable time in hours" />
 
-            <hr style="margin:12px 0" />
-
-            <div style="display:flex;gap:8px;margin-bottom:8px">
-              <button id="downloadAllBtn" class="small">Download All Templates</button>
-              <button id="restoreDefaultsBtn" class="small danger-outline">Restore Defaults</button>
-            </div>
-
-            <div style="margin-top:8px">
-              <label class="muted">Import JSON (paste)</label>
-              <textarea id="importTextarea" placeholder='Paste JSON here then click "Apply Import"'></textarea>
-              <div style="display:flex;gap:8px;margin-top:8px">
-                <button id="applyImportBtn" class="small">Apply Import</button>
-                <button id="clearImportBtn" class="small ghost">Clear</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div class="button-group">
+      <button onclick="calculateEfficiency()">Add Entry</button>
+      <button onclick="exportToExcel()">Export All to Excel</button>
+      <button onclick="shareViaEmail()">Share via Email</button>
+      <button onclick="clearAllEntries()">Clear Page</button>
     </div>
+
+    <table id="resultsTable" style="display:none">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Period</th>
+          <th>Total Calls</th>
+          <th>Talk Time (min)</th>
+          <th>Call Documentation Period</th>
+          <th>Tickets Handled</th>
+          <th>Avg. Time (Ticket)</th>
+          <th>Productivity Time (min)</th>
+          <th>Total Ticket Time (min)</th>
+          <th>Billable Hours</th>
+          <th>Estimated Hours</th>
+          <th>Efficiency %</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div id="analysisOutput"></div>
   </div>
 
-<script>
-/*
-  Keedian Checklist Manager (single-file)
-  - Persistent templates saved under localStorage key 'keedian_templates_v1'
-  - Functions: create/rename/delete template, add/delete/toggle items, reset, export/import JSON
-*/
-(function(){
-  const STORAGE_KEY = 'keedian_templates_v1';
+  <script>
+    let results = [];
 
-  const defaultTemplates = {
-    "overnight": [
-      { id: generateId(), text: "Vaccine Case Alarms Checked", done: false },
-      { id: generateId(), text: "JCP Alarms reviewed for winter issues", done: false },
-      { id: generateId(), text: "Follow-ups for clients", done: false },
-      { id: generateId(), text: "Overflow emails from end of shift", done: false },
-      { id: generateId(), text: "Review any project work for retail clients", done: false }
-    ],
-    "custom": []
-  };
+    function calculateEfficiency() {
+      const name = document.getElementById('name').value.trim() || 'Unnamed';
+      const period = document.getElementById('period').value;
+      const calls = parseInt(document.getElementById('calls').value) || 0;
+      const talkTime = parseInt(document.getElementById('talkTime').value) || 0;
+      const callLength = parseFloat(document.getElementById('callLength').value) || 1;
+      const tickets = parseInt(document.getElementById('tickets').value) || 0;
+      const avgTime = parseFloat(document.getElementById('avgTime').value) || 8;
+      const productivityTime = parseInt(document.getElementById('productivityTime').value) || 0;
+      const billableHours = parseFloat(document.getElementById('billable').value) || 0;
+      const billableMinutes = billableHours * 60;
 
-  // State
-  let templates = loadTemplates();
-  let currentTemplate = Object.keys(templates)[0] || 'overnight';
+      const totalTicketTime = tickets * avgTime;
+      const totalCallTime = calls * callLength;
+      const totalTime = totalCallTime + talkTime + productivityTime + totalTicketTime;
+      const estHours = totalTime / 60;
+      const efficiency = billableMinutes > 0 ? (totalTime / billableMinutes) * 100 : 0;
 
-  // DOM refs
-  const templateSelect = document.getElementById('templateSelect');
-  const newTemplateName = document.getElementById('newTemplateName');
-  const createTemplateBtn = document.getElementById('createTemplateBtn');
-  const renameTemplateBtn = document.getElementById('renameTemplateBtn');
-  const deleteTemplateBtn = document.getElementById('deleteTemplateBtn');
-  const itemsContainer = document.getElementById('itemsContainer');
-  const addItemInput = document.getElementById('addItemInput');
-  const addItemBtn = document.getElementById('addItemBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const clearDoneBtn = document.getElementById('clearDoneBtn');
-  const exportBtn = document.getElementById('exportBtn');
-  const importBtn = document.getElementById('importBtn');
-  const fileInput = document.getElementById('fileInput');
-  const importTextarea = document.getElementById('importTextarea');
-  const applyImportBtn = document.getElementById('applyImportBtn');
-  const clearImportBtn = document.getElementById('clearImportBtn');
-  const restoreDefaultsBtn = document.getElementById('restoreDefaultsBtn');
-  const downloadAllBtn = document.getElementById('downloadAllBtn');
-  const printBtn = document.getElementById('printBtn');
+      const requiredProductiveTime = billableMinutes * 0.75;
+      const gap = requiredProductiveTime - totalTime;
+      const suggestedTickets = Math.ceil(gap / avgTime);
 
-  // Initialize UI
-  renderTemplateOptions();
-  templateSelect.value = currentTemplate;
-  renderItems();
+      const rowData = {
+        Name: name,
+        Period: period,
+        Total_Calls: calls,
+        Talk_Time_Min: talkTime,
+        Call_Length: callLength,
+        Tickets_Handled: tickets,
+        Avg_Time_Min: avgTime,
+        Productivity_Time: productivityTime,
+        Total_Ticket_Time_Min: totalTicketTime.toFixed(2),
+        Billable_Minutes: billableHours.toFixed(2),
+        Estimated_Hours: estHours.toFixed(2),
+        Efficiency_Percent: efficiency.toFixed(2)
+      };
 
-  // Event bindings
-  templateSelect.addEventListener('change', (e) => {
-    currentTemplate = e.target.value;
-    renderItems();
-  });
+      results.push(rowData);
+      appendToTable(rowData);
+      displayAnalysis(efficiency, gap, suggestedTickets, name);
 
-  createTemplateBtn.addEventListener('click', createTemplateFromInput);
-  newTemplateName.addEventListener('keyup', (e) => { if (e.key === 'Enter') createTemplateFromInput(); });
-
-  renameTemplateBtn.addEventListener('click', () => {
-    const newName = prompt('New name for template', currentTemplate);
-    if (!newName) return;
-    if (templates[newName]) {
-      alert('A template with that name already exists.');
-      return;
+      document.getElementById('name').value = "";
+      document.getElementById('calls').value = "";
+      document.getElementById('callLength').value = "1";
+      document.getElementById('talkTime').value = "";
+      document.getElementById('productivityTime').value = "0";
+      document.getElementById('tickets').value = "";
+      document.getElementById('avgTime').value = "8";
+      document.getElementById('billable').value = "";
     }
-    templates[newName] = templates[currentTemplate];
-    delete templates[currentTemplate];
-    currentTemplate = newName;
-    saveTemplates();
-    renderTemplateOptions();
-    templateSelect.value = currentTemplate;
-    renderItems();
-  });
 
-  deleteTemplateBtn.addEventListener('click', () => {
-    if (!confirm(`Delete template "${currentTemplate}"? This cannot be undone.`)) return;
-    delete templates[currentTemplate];
-    const keys = Object.keys(templates);
-    currentTemplate = keys[0] || 'overnight';
-    if (!templates[currentTemplate]) templates = {...defaultTemplates};
-    saveTemplates();
-    renderTemplateOptions();
-    templateSelect.value = currentTemplate;
-    renderItems();
-  });
+    function appendToTable(data) {
+      const table = document.getElementById("resultsTable");
+      const tbody = table.querySelector("tbody");
+      const row = document.createElement("tr");
 
-  addItemBtn.addEventListener('click', () => {
-    const txt = addItemInput.value.trim();
-    if (!txt) return;
-    addItem(txt);
-    addItemInput.value = '';
-    addItemInput.focus();
-  });
-  addItemInput.addEventListener('keyup', e => { if (e.key === 'Enter') addItemBtn.click(); });
+      const keys = [
+        'Name', 'Period', 'Total_Calls', 'Talk_Time_Min', 'Call_Length',
+        'Tickets_Handled', 'Avg_Time_Min', 'Productivity_Time',
+        'Total_Ticket_Time_Min', 'Billable_Minutes',
+        'Estimated_Hours', 'Efficiency_Percent'
+      ];
 
-  resetBtn.addEventListener('click', () => {
-    if (!confirm('Reset all items to undone for this template?')) return;
-    templates[currentTemplate] = templates[currentTemplate].map(it => ({...it, done:false}));
-    saveTemplates(); renderItems();
-  });
-
-  clearDoneBtn.addEventListener('click', () => {
-    templates[currentTemplate] = templates[currentTemplate].filter(it => !it.done);
-    saveTemplates(); renderItems();
-  });
-
-  exportBtn.addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(templates, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'keedian_templates.json'; document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
-  });
-
-  importBtn.addEventListener('click', () => { fileInput.click(); });
-  fileInput.addEventListener('change', (e) => {
-    const f = e.target.files[0]; if (!f) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const parsed = JSON.parse(ev.target.result);
-        if (typeof parsed !== 'object') throw new Error('invalid');
-        if (!confirm('Apply imported templates? This will replace your existing templates.')) return;
-        templates = normalizeImportedTemplates(parsed);
-        saveTemplates(); renderTemplateOptions(); templateSelect.value = currentTemplate; renderItems();
-        alert('Imported templates applied.');
-      } catch (err) { alert('Failed to import JSON: ' + err.message); }
-    };
-    reader.readAsText(f);
-    fileInput.value = '';
-  });
-
-  applyImportBtn.addEventListener('click', () => {
-    const txt = importTextarea.value.trim();
-    if (!txt) { alert('Paste JSON into the textarea first'); return; }
-    try {
-      const parsed = JSON.parse(txt);
-      if (!confirm('Apply imported templates? This will replace your existing templates.')) return;
-      templates = normalizeImportedTemplates(parsed);
-      saveTemplates(); renderTemplateOptions(); templateSelect.value = currentTemplate; renderItems();
-      alert('Imported templates applied.');
-      importTextarea.value = '';
-    } catch (err) {
-      alert('Invalid JSON: ' + err.message);
-    }
-  });
-
-  clearImportBtn.addEventListener('click', () => importTextarea.value = '');
-
-  restoreDefaultsBtn.addEventListener('click', () => {
-    if (!confirm('Restore default templates? This will overwrite current templates.')) return;
-    templates = JSON.parse(JSON.stringify(defaultTemplates));
-    currentTemplate = Object.keys(templates)[0];
-    saveTemplates(); renderTemplateOptions(); templateSelect.value = currentTemplate; renderItems();
-  });
-
-  downloadAllBtn.addEventListener('click', () => {
-    const data = JSON.stringify(templates, null, 2);
-    const blob = new Blob([data], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'keedian_templates_all.json'; document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
-  });
-
-  printBtn.addEventListener('click', () => window.print());
-
-  // Core functions
-  function renderTemplateOptions(){
-    templateSelect.innerHTML = '';
-    Object.keys(templates).forEach(key => {
-      const opt = document.createElement('option');
-      opt.value = key; opt.textContent = key;
-      templateSelect.appendChild(opt);
-    });
-    if (!templates[currentTemplate]) currentTemplate = Object.keys(templates)[0];
-  }
-
-  function renderItems(){
-    itemsContainer.innerHTML = '';
-    const list = templates[currentTemplate] || [];
-    if (!Array.isArray(list)) templates[currentTemplate] = [];
-    list.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'item';
-      const left = document.createElement('div'); left.className='item-row';
-      const checkbox = document.createElement('input'); checkbox.type='checkbox'; checkbox.checked = !!item.done;
-      checkbox.addEventListener('change', () => { toggleItem(item.id); });
-      const span = document.createElement('div'); span.className='item-text'; span.textContent = item.text;
-      if (item.done) span.classList.add('done');
-      left.appendChild(checkbox); left.appendChild(span);
-
-      const right = document.createElement('div');
-      const toggleBtn = document.createElement('button'); toggleBtn.className='small ghost'; toggleBtn.textContent = item.done ? 'Undo' : 'Done';
-      toggleBtn.addEventListener('click', () => toggleItem(item.id));
-      const deleteBtn = document.createElement('button'); deleteBtn.className='small danger-outline'; deleteBtn.textContent = 'Delete';
-      deleteBtn.addEventListener('click', () => {
-        if (!confirm('Delete this item?')) return;
-        deleteItem(item.id);
+      keys.forEach(key => {
+        const td = document.createElement("td");
+        td.textContent = data[key];
+        td.contentEditable = true;
+        td.addEventListener("blur", () => updateDataFromTable());
+        row.appendChild(td);
       });
-      right.appendChild(toggleBtn); right.appendChild(deleteBtn);
 
-      row.appendChild(left); row.appendChild(right);
-      itemsContainer.appendChild(row);
-    });
+      const deleteTd = document.createElement("td");
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Delete";
+      deleteBtn.className = "delete-btn";
+      deleteBtn.onclick = function () {
+        const index = Array.from(tbody.children).indexOf(row);
+        if (index > -1) {
+          results.splice(index, 1);
+          tbody.removeChild(row);
+          updateDataFromTable();
+        }
+        if (results.length === 0) {
+          table.style.display = 'none';
+          clearAnalysisOutput();
+        }
+      };
+      deleteTd.appendChild(deleteBtn);
+      row.appendChild(deleteTd);
 
-    // If empty show hint
-    if (list.length === 0){
-      const hint = document.createElement('div');
-      hint.className = 'muted';
-      hint.style.padding = '12px';
-      hint.textContent = 'No items in this template—add one using the input above.';
-      itemsContainer.appendChild(hint);
+      tbody.appendChild(row);
+      table.style.display = 'table';
     }
-  }
 
-  function addItem(text){
-    const item = { id: generateId(), text: text, done: false };
-    templates[currentTemplate] = templates[currentTemplate] || [];
-    templates[currentTemplate].push(item);
-    saveTemplates(); renderItems();
-  }
+    function updateDataFromTable() {
+      const tbody = document.querySelector("#resultsTable tbody");
+      results = Array.from(tbody.rows).map(row => {
+        const cells = row.querySelectorAll("td");
+        const name = cells[0].textContent.trim() || 'Unnamed';
+        const period = cells[1].textContent.trim() || 'Daily';
+        const calls = Number(cells[2].textContent) || 0;
+        const talkTime = Number(cells[3].textContent) || 0;
+        const callLength = Number(cells[4].textContent) || 1;
+        const tickets = Number(cells[5].textContent) || 0;
+        const avgTime = Number(cells[6].textContent) || 8;
+        const productivityTime = Number(cells[7].textContent) || 0;
+        const billableHours = Number(cells[9].textContent) || 0;
+        const billableMinutes = billableHours * 60;
 
-  function toggleItem(id){
-    templates[currentTemplate] = templates[currentTemplate].map(it => it.id === id ? {...it, done: !it.done} : it);
-    saveTemplates(); renderItems();
-  }
+        const totalTicketTime = tickets * avgTime;
+        const totalCallTime = calls * callLength;
+        const totalTime = totalCallTime + talkTime + productivityTime + totalTicketTime;
+        const estHours = totalTime / 60;
+        const efficiency = billableMinutes > 0 ? (totalTime / billableMinutes) * 100 : 0;
 
-  function deleteItem(id){
-    templates[currentTemplate] = templates[currentTemplate].filter(it => it.id !== id);
-    saveTemplates(); renderItems();
-  }
+        cells[8].textContent = totalTicketTime.toFixed(2);
+        cells[10].textContent = estHours.toFixed(2);
+        cells[11].textContent = efficiency.toFixed(2);
 
-  function saveTemplates(){
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
-    } catch (e) {
-      console.error('Failed to save templates', e);
-    }
-  }
+        return {
+          Name: name,
+          Period: period,
+          Total_Calls: calls,
+          Talk_Time_Min: talkTime,
+          Call_Length: callLength,
+          Tickets_Handled: tickets,
+          Avg_Time_Min: avgTime,
+          Productivity_Time: productivityTime,
+          Total_Ticket_Time_Min: totalTicketTime.toFixed(2),
+          Billable_Minutes: billableHours.toFixed(2),
+          Estimated_Hours: estHours.toFixed(2),
+          Efficiency_Percent: efficiency.toFixed(2)
+        };
+      });
 
-  function loadTemplates(){
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTemplates));
-        currentTemplate = Object.keys(defaultTemplates)[0];
-        return JSON.parse(JSON.stringify(defaultTemplates));
+      clearAnalysisOutput();
+      if (results.length > 0) {
+        const last = results[results.length - 1];
+        const requiredProductiveTime = Number(last.Billable_Minutes) * 60 * 0.75;
+        const gap = requiredProductiveTime - (
+          Number(last.Total_Calls) * Number(last.Call_Length) +
+          Number(last.Talk_Time_Min) +
+          Number(last.Productivity_Time) +
+          Number(last.Total_Ticket_Time_Min)
+        );
+        const suggestedTickets = Math.ceil(gap / Number(last.Avg_Time_Min));
+        displayAnalysis(parseFloat(last.Efficiency_Percent), gap, suggestedTickets, last.Name);
       }
-      const parsed = JSON.parse(raw);
-      // ensure default structure if missing
-      if (!parsed.overnight) parsed.overnight = defaultTemplates.overnight;
-      if (!parsed.custom) parsed.custom = parsed.custom || [];
-      currentTemplate = Object.keys(parsed)[0] || 'overnight';
-      return parsed;
-    } catch (err) {
-      console.warn('Corrupt stored templates; restoring defaults.', err);
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTemplates));
-      currentTemplate = Object.keys(defaultTemplates)[0];
-      return JSON.parse(JSON.stringify(defaultTemplates));
     }
-  }
 
-  function normalizeImportedTemplates(parsed){
-    // convert to expected shape: {name: [{id,text,done}, ...], ...}
-    const result = {};
-    Object.keys(parsed).forEach(k => {
-      const arr = parsed[k];
-      if (!Array.isArray(arr)) return;
-      result[k] = arr.map(it => ({
-        id: it.id || generateId(),
-        text: String(it.text || '').trim(),
-        done: !!it.done
-      })).filter(it => it.text.length > 0);
-    });
-    if (Object.keys(result).length === 0) {
-      throw new Error('Imported JSON did not contain any valid templates.');
+    function exportToExcel() {
+      if(results.length === 0) return alert("No data to export.");
+      let csv = "Name,Period,Total Calls,Talk Time,Call Documentation Period,Tickets Handled,Avg Time,Productivity Time,Total Ticket Time,Billable Hours,Estimated Hours,Efficiency %\n";
+      results.forEach(row => {
+        csv += Object.values(row).join(",") + "\n";
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "Efficiency_Export.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-    // keep same current template if possible
-    if (!result[currentTemplate]) currentTemplate = Object.keys(result)[0];
-    return result;
-  }
 
-  function generateId(){
-    return Math.floor(Date.now() * Math.random()).toString(36);
-  }
+    function shareViaEmail() {
+      if(results.length === 0) return alert("No data to share.");
+      let csv = "Name,Period,Total Calls,Talk Time,Call Documentation Period,Tickets Handled,Avg Time,Productivity Time,Total Ticket Time,Billable Hours,Estimated Hours,Efficiency %\n";
+      results.forEach(row => {
+        let rowValues = Object.values(row).map(val => String(val).replace(/,/g, ';'));
+        csv += rowValues.join(",") + "\n";
+      });
+      const subject = encodeURIComponent("Tutenlabs Efficiency Data");
+      const body = encodeURIComponent(csv);
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    }
 
-  // utility: add enter/escape behavior for import textarea
-  // expose minor functions to window (for debugging)
-  window.__keedian = { get templates(){return templates}, saveTemplates };
+    function clearAllEntries() {
+      results = [];
+      document.querySelector("tbody").innerHTML = "";
+      document.getElementById("resultsTable").style.display = "none";
+      clearAnalysisOutput();
+    }
 
-})();
-</script>
+    function displayAnalysis(efficiency, gap, suggestedTickets, name) {
+      const container = document.getElementById("analysisOutput");
+      const message = document.createElement("div");
+      if (efficiency >= 75 || gap <= 0) {
+        message.textContent = `${name}: Efficiency is sufficient.`;
+      } else {
+        message.innerHTML = `
+          <strong>Recommendation for ${name}:</strong><br>
+          Current Efficiency: <strong>${efficiency.toFixed(2)}%</strong>.<br>
+          To reach 75%, they should handle <strong>${suggestedTickets}</strong> more tickets.
+        `;
+      }
+      container.appendChild(message);
+      container.scrollIntoView({behavior: 'smooth'});
+    }
+
+    function clearAnalysisOutput() {
+      document.getElementById("analysisOutput").innerHTML = "";
+    }
+  </script>
 </body>
 </html>
